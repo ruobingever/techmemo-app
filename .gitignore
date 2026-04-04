@@ -1,0 +1,25 @@
+# Android 项目忽略文件
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cider
+app/build/
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+proguard/
+
+# gradle wrapper（保留jar）
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
