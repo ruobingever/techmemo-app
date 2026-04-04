@@ -21,8 +21,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 🔧 给 gradlew 添加执行权限
-        run: chmod +x gradlew
+      - name: 🔧 修复 gradlew 换行符并添加执行权限
+        run: |
+          sed -i 's/\r$//' gradlew
+          chmod +x gradlew
+          head -1 gradlew
+          file gradlew
 
       - name: 📦 缓存 Gradle 依赖
         uses: actions/cache@v4
