@@ -243,7 +243,7 @@
   .list-container {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 16px 100px;
+    padding: 10px 16px 110px;
     scrollbar-width: thin;
     scrollbar-color: rgba(0,212,255,0.2) transparent;
   }
@@ -342,6 +342,34 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* 时间信息行 */
+  .task-times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .time-tag {
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    padding: 2px 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .time-tag.start-time {
+    background: rgba(0,128,255,0.12);
+    color: #5bb3ff;
+    border: 1px solid rgba(0,128,255,0.25);
+  }
+  .time-tag.end-time {
+    background: rgba(0,255,136,0.10);
+    color: var(--accent-green);
+    border: 1px solid rgba(0,255,136,0.25);
+  }
+
   .task-footer {
     display: flex;
     align-items: center;
@@ -405,11 +433,19 @@
     box-shadow: 0 0 8px rgba(0,255,136,0.2);
   }
 
-  /* ===== 添加按钮 ===== */
-  .fab {
+  /* ===== 添加按钮 + 导出按钮区域 ===== */
+  .bottom-actions {
     position: fixed;
-    bottom: 28px;
-    right: 24px;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    z-index: 100;
+  }
+
+  .fab {
     width: 56px; height: 56px;
     border-radius: 50%;
     border: none;
@@ -419,10 +455,10 @@
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(0,212,255,0.5), 0 0 40px rgba(0,128,255,0.3);
     transition: all 0.3s;
-    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
   }
   .fab:active { transform: scale(0.9); }
   .fab::before {
@@ -437,6 +473,26 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0; transform: scale(1.3); }
   }
+
+  /* 导出按钮 */
+  .export-btn {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,255,136,0.4);
+    background: rgba(0,255,136,0.1);
+    color: var(--accent-green);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    box-shadow: 0 0 12px rgba(0,255,136,0.15);
+  }
+  .export-btn:active { transform: scale(0.95); opacity: 0.85; }
 
   /* ===== 弹窗 ===== */
   .modal-overlay {
@@ -468,6 +524,8 @@
     transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
     position: relative;
     overflow: hidden;
+    max-height: 90vh;
+    overflow-y: auto;
   }
   .modal::before {
     content: '';
@@ -526,8 +584,37 @@
   }
   .form-select option { background: #0a1628; }
 
+  /* datetime-local 样式适配 */
+  input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+  }
+
   .form-row { display: flex; gap: 10px; }
   .form-row .form-group { flex: 1; }
+
+  /* 时间字段分割线 */
+  .form-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0 14px;
+    position: relative;
+  }
+  .form-divider-label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-card2);
+    padding: 0 8px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
 
   .modal-actions {
     display: flex;
@@ -702,7 +789,7 @@
     <div class="header-top">
       <div>
         <div class="app-title">TECH MEMO</div>
-        <div class="header-subtitle">智能备忘录系统 v2.0</div>
+        <div class="header-subtitle">智能备忘录系统 v3.0</div>
       </div>
       <div style="text-align:right">
         <div id="current-time">--:--:--</div>
@@ -768,8 +855,11 @@
   </div>
 </div>
 
-<!-- FAB 添加按钮 -->
-<button class="fab" onclick="openModal()">+</button>
+<!-- 底部操作区 -->
+<div class="bottom-actions">
+  <button class="export-btn" onclick="exportToExcel()">📊 导出 Excel</button>
+  <button class="fab" onclick="openModal()">+</button>
+</div>
 
 <!-- 添加/编辑弹窗 -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
@@ -795,13 +885,28 @@
       </div>
       <div class="form-group">
         <label class="form-label">初始状态</label>
-        <select class="form-select" id="input-status">
+        <select class="form-select" id="input-status" onchange="onStatusSelectChange()">
           <option value="pending">⬜ 未开始</option>
           <option value="doing">🔄 进行中</option>
           <option value="done">✅ 已完成</option>
         </select>
       </div>
     </div>
+
+    <!-- 时间字段分割线 -->
+    <div class="form-divider"><span class="form-divider-label">时间记录</span></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">🚀 开始时间</label>
+        <input class="form-input" type="datetime-local" id="input-start-time">
+      </div>
+      <div class="form-group">
+        <label class="form-label">✅ 完成时间</label>
+        <input class="form-input" type="datetime-local" id="input-end-time">
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">取消</button>
       <button class="btn-save" onclick="saveTask()">保存任务</button>
@@ -899,8 +1004,26 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
+// ===== 辅助：获取当前 datetime-local 格式字符串 =====
+function nowDatetimeLocal() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const MM = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+}
+
+// ===== 辅助：格式化 datetime-local 显示 =====
+function fmtDatetime(dtStr) {
+  if (!dtStr) return '';
+  // dtStr: "2026-04-06T19:00"
+  return dtStr.replace('T', ' ').substring(0, 16);
+}
+
 // ===== 数据层 =====
-const STORAGE_KEY = 'techmemo_tasks_v2';
+const STORAGE_KEY = 'techmemo_tasks_v3';
 let tasks = [];
 let currentFilter = 'all';
 let editingId = null;
@@ -909,16 +1032,27 @@ let sortMode = 'newest'; // newest | priority | status
 
 function loadTasks() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    // 尝试读取新版数据
+    let saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) {
+      // 兼容旧版数据
+      saved = localStorage.getItem('techmemo_tasks_v2');
+    }
     if (saved) tasks = JSON.parse(saved);
+    // 迁移旧数据：补充新字段
+    tasks = tasks.map(t => ({
+      startTime: '',
+      endTime: '',
+      ...t
+    }));
     // 默认演示数据
     if (!tasks || tasks.length === 0) {
       tasks = [
-        { id: Date.now()-3000, title: '完成产品需求文档', desc: '整理Q2核心功能的PRD，需要与PM对齐', status: 'done', priority: 'high', date: '2026-04-01 09:00' },
-        { id: Date.now()-2000, title: '前端性能优化专项', desc: '针对首屏加载时间进行优化，目标 < 1.5s', status: 'doing', priority: 'high', date: '2026-04-03 14:30' },
-        { id: Date.now()-1000, title: 'API接口联调测试', desc: '与后端确认接口字段，完成所有功能模块联调', status: 'doing', priority: 'mid', date: '2026-04-04 10:00' },
-        { id: Date.now()-500, title: '周会PPT制作', desc: '准备本周项目进展汇报材料', status: 'pending', priority: 'mid', date: '2026-04-04 12:00' },
-        { id: Date.now()-100, title: '代码评审', desc: '审查新功能分支代码，提交review意见', status: 'pending', priority: 'low', date: '2026-04-04 12:27' }
+        { id: Date.now()-3000, title: '完成产品需求文档', desc: '整理Q2核心功能的PRD，需要与PM对齐', status: 'done', priority: 'high', date: '2026-04-01 09:00', startTime: '2026-04-01T09:00', endTime: '2026-04-01T17:30' },
+        { id: Date.now()-2000, title: '前端性能优化专项', desc: '针对首屏加载时间进行优化，目标 < 1.5s', status: 'doing', priority: 'high', date: '2026-04-03 14:30', startTime: '2026-04-03T14:30', endTime: '' },
+        { id: Date.now()-1000, title: 'API接口联调测试', desc: '与后端确认接口字段，完成所有功能模块联调', status: 'doing', priority: 'mid', date: '2026-04-04 10:00', startTime: '2026-04-04T10:00', endTime: '' },
+        { id: Date.now()-500, title: '周会PPT制作', desc: '准备本周项目进展汇报材料', status: 'pending', priority: 'mid', date: '2026-04-04 12:00', startTime: '', endTime: '' },
+        { id: Date.now()-100, title: '代码评审', desc: '审查新功能分支代码，提交review意见', status: 'pending', priority: 'low', date: '2026-04-04 12:27', startTime: '', endTime: '' }
       ];
       saveTasks();
     }
@@ -1007,6 +1141,15 @@ function renderTasks() {
       { key: 'done', label: '✅ 已完成' }
     ].map(s => `<button class="status-btn ${s.key === task.status ? 'active-' + s.key : ''}" onclick="changeStatus(${task.id},'${s.key}',event)">${s.label}</button>`).join('');
 
+    // 时间标签
+    let timeTags = '';
+    if (task.startTime) {
+      timeTags += `<span class="time-tag start-time">🚀 ${fmtDatetime(task.startTime)}</span>`;
+    }
+    if (task.endTime) {
+      timeTags += `<span class="time-tag end-time">✅ ${fmtDatetime(task.endTime)}</span>`;
+    }
+
     card.innerHTML = `
       <div class="task-header">
         <div class="task-title ${task.status === 'done' ? 'done-text' : ''}">${escHtml(task.title)}</div>
@@ -1016,6 +1159,7 @@ function renderTasks() {
         </div>
       </div>
       ${task.desc ? `<div class="task-body">${escHtml(task.desc)}</div>` : ''}
+      ${timeTags ? `<div class="task-times">${timeTags}</div>` : ''}
       <div class="task-footer">
         <span class="task-date">${task.date}</span>
         <span class="task-priority ${priorityClass}">${priorityLabel}</span>
@@ -1038,16 +1182,46 @@ function setFilter(filter, btn) {
   renderTasks();
 }
 
-// ===== 状态切换 =====
+// ===== 状态切换（自动填充时间）=====
 function changeStatus(id, newStatus, event) {
   event && event.stopPropagation();
   const task = tasks.find(t => t.id === id);
   if (!task) return;
+  const oldStatus = task.status;
   task.status = newStatus;
+
+  // 自动填充时间
+  const now = nowDatetimeLocal();
+  if (newStatus === 'doing' && !task.startTime) {
+    task.startTime = now;
+  }
+  if (newStatus === 'done') {
+    if (!task.startTime) task.startTime = now;
+    task.endTime = now;
+  }
+  // 撤回到未开始时清除时间（可选逻辑）
+  // if (newStatus === 'pending') { task.startTime = ''; task.endTime = ''; }
+
   saveTasks();
   renderTasks();
-  const labels = { pending: '已设为未开始', doing: '已设为进行中', done: '已标记完成 🎉' };
+  const labels = { pending: '已设为未开始', doing: '已设为进行中 🚀', done: '已标记完成 🎉' };
   showToast(labels[newStatus]);
+}
+
+// ===== 状态下拉联动填充时间 =====
+function onStatusSelectChange() {
+  const status = document.getElementById('input-status').value;
+  const now = nowDatetimeLocal();
+  const startInput = document.getElementById('input-start-time');
+  const endInput = document.getElementById('input-end-time');
+
+  if (status === 'doing' && !startInput.value) {
+    startInput.value = now;
+  }
+  if (status === 'done') {
+    if (!startInput.value) startInput.value = now;
+    if (!endInput.value) endInput.value = now;
+  }
 }
 
 // ===== 弹窗 =====
@@ -1058,6 +1232,8 @@ function openModal() {
   document.getElementById('input-desc').value = '';
   document.getElementById('input-priority').value = 'mid';
   document.getElementById('input-status').value = 'pending';
+  document.getElementById('input-start-time').value = '';
+  document.getElementById('input-end-time').value = '';
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(() => document.getElementById('input-title').focus(), 400);
 }
@@ -1072,6 +1248,8 @@ function openEditModal(id, event) {
   document.getElementById('input-desc').value = task.desc || '';
   document.getElementById('input-priority').value = task.priority;
   document.getElementById('input-status').value = task.status;
+  document.getElementById('input-start-time').value = task.startTime || '';
+  document.getElementById('input-end-time').value = task.endTime || '';
   document.getElementById('modal-overlay').classList.add('show');
 }
 
@@ -1090,13 +1268,27 @@ function saveTask() {
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
+  const newStatus = document.getElementById('input-status').value;
+  let startTime = document.getElementById('input-start-time').value;
+  let endTime = document.getElementById('input-end-time').value;
+
+  // 保存时自动填充时间逻辑
+  const nowStr = nowDatetimeLocal();
+  if (newStatus === 'doing' && !startTime) startTime = nowStr;
+  if (newStatus === 'done') {
+    if (!startTime) startTime = nowStr;
+    if (!endTime) endTime = nowStr;
+  }
+
   if (editingId) {
     const task = tasks.find(t => t.id === editingId);
     if (task) {
       task.title = title;
       task.desc = document.getElementById('input-desc').value.trim();
       task.priority = document.getElementById('input-priority').value;
-      task.status = document.getElementById('input-status').value;
+      task.status = newStatus;
+      task.startTime = startTime;
+      task.endTime = endTime;
     }
     showToast('任务已更新');
   } else {
@@ -1105,8 +1297,10 @@ function saveTask() {
       title,
       desc: document.getElementById('input-desc').value.trim(),
       priority: document.getElementById('input-priority').value,
-      status: document.getElementById('input-status').value,
-      date: dateStr
+      status: newStatus,
+      date: dateStr,
+      startTime,
+      endTime
     });
     showToast('任务已添加 ✨');
   }
@@ -1144,6 +1338,68 @@ function toggleSortMenu() {
   sortMode = modes[(idx + 1) % 3];
   showToast('排序: ' + labels[(idx + 1) % 3]);
   renderTasks();
+}
+
+// ===== 导出 Excel (CSV) =====
+function exportToExcel() {
+  if (tasks.length === 0) {
+    showToast('暂无任务数据');
+    return;
+  }
+
+  // 构建 CSV 内容（带 BOM，Excel 能正确识别中文）
+  const BOM = '\uFEFF';
+  const headers = ['序号', '任务标题', '描述', '优先级', '状态', '创建时间', '开始时间', '完成时间'];
+  
+  const statusMap = { pending: '未开始', doing: '进行中', done: '已完成' };
+  const priorityMap = { high: '高优先级', mid: '中优先级', low: '低优先级' };
+
+  const rows = tasks.map((t, i) => [
+    i + 1,
+    t.title,
+    t.desc || '',
+    priorityMap[t.priority] || t.priority,
+    statusMap[t.status] || t.status,
+    t.date || '',
+    fmtDatetime(t.startTime) || '',
+    fmtDatetime(t.endTime) || ''
+  ]);
+
+  const csvContent = BOM + [headers, ...rows]
+    .map(row => row.map(cell => {
+      // 包含逗号、换行或引号的字段需要用双引号包裹
+      const str = String(cell);
+      if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }).join(','))
+    .join('\n');
+
+  // 尝试调用 Android 原生接口保存文件
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.saveCSV === 'function') {
+      const result = window.AndroidBridge.saveCSV(csvContent, 'TechMemo_Export.csv');
+      showToast(result || '导出成功 📊');
+      return;
+    }
+  } catch(e) {}
+
+  // 降级：在浏览器环境下通过 <a> 下载
+  try {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'TechMemo_Export.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('导出成功 📊');
+  } catch(e) {
+    showToast('导出失败，请重试');
+  }
 }
 
 // ===== Toast =====
