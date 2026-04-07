@@ -381,16 +381,7 @@
     font-family: 'Courier New', monospace;
     opacity: 0.7;
   }
-  .task-priority {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
-  .priority-high { background: rgba(255,68,102,0.15); color: var(--accent-red); border: 1px solid rgba(255,68,102,0.3); }
-  .priority-mid { background: rgba(255,204,0,0.12); color: var(--accent-yellow); border: 1px solid rgba(255,204,0,0.3); }
-  .priority-low { background: rgba(0,212,255,0.1); color: var(--text-secondary); border: 1px solid var(--border); }
+
 
   /* 状态选择器 */
   .status-selector {
@@ -663,11 +654,7 @@
   }
   .import-preview-item:last-child { border-bottom: none; }
   .import-preview-item .item-title { color: var(--text-primary); font-weight: 500; flex: 1; }
-  .import-preview-item .item-priority {
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 8px;
-  }
+
   .import-hint {
     font-size: 11px;
     color: var(--text-secondary);
@@ -1373,7 +1360,7 @@ let tasks = [];
 let currentFilter = 'all';
 let editingId = null;
 let deletingId = null;
-let sortMode = 'newest'; // newest | priority | status
+let sortMode = 'newest'; // newest | status
 let pendingImportTasks = []; // 待导入的任务列表
 let updateDownloadUrl = '';
 
@@ -1395,11 +1382,11 @@ function loadTasks() {
     // 默认演示数据
     if (!tasks || tasks.length === 0) {
       tasks = [
-        { id: Date.now()-3000, title: '完成产品需求文档', desc: '整理Q2核心功能的PRD，需要与PM对齐', status: 'done', priority: 'high', date: '2026-04-01 09:00', startTime: '2026-04-01T09:00', endTime: '2026-04-01T17:30' },
-        { id: Date.now()-2000, title: '前端性能优化专项', desc: '针对首屏加载时间进行优化，目标 < 1.5s', status: 'doing', priority: 'high', date: '2026-04-03 14:30', startTime: '2026-04-03T14:30', endTime: '' },
-        { id: Date.now()-1000, title: 'API接口联调测试', desc: '与后端确认接口字段，完成所有功能模块联调', status: 'doing', priority: 'mid', date: '2026-04-04 10:00', startTime: '2026-04-04T10:00', endTime: '' },
-        { id: Date.now()-500, title: '周会PPT制作', desc: '准备本周项目进展汇报材料', status: 'pending', priority: 'mid', date: '2026-04-04 12:00', startTime: '', endTime: '' },
-        { id: Date.now()-100, title: '代码评审', desc: '审查新功能分支代码，提交review意见', status: 'pending', priority: 'low', date: '2026-04-04 12:27', startTime: '', endTime: '' }
+        { id: Date.now()-3000, title: '完成产品需求文档', desc: '整理Q2核心功能的PRD，需要与PM对齐', status: 'done', date: '2026-04-01 09:00', startTime: '2026-04-01T09:00', endTime: '2026-04-01T17:30' },
+        { id: Date.now()-2000, title: '前端性能优化专项', desc: '针对首屏加载时间进行优化，目标 < 1.5s', status: 'doing', date: '2026-04-03 14:30', startTime: '2026-04-03T14:30', endTime: '' },
+        { id: Date.now()-1000, title: 'API接口联调测试', desc: '与后端确认接口字段，完成所有功能模块联调', status: 'doing', date: '2026-04-04 10:00', startTime: '2026-04-04T10:00', endTime: '' },
+        { id: Date.now()-500, title: '周会PPT制作', desc: '准备本周项目进展汇报材料', status: 'pending', date: '2026-04-04 12:00', startTime: '', endTime: '' },
+        { id: Date.now()-100, title: '代码评审', desc: '审查新功能分支代码，提交review意见', status: 'pending', date: '2026-04-04 12:27', startTime: '', endTime: '' }
       ];
       saveTasks();
     }
@@ -1545,8 +1532,7 @@ function renderTasks() {
     }, index * 50);
   });
 
-    const priorityLabel = { high: '高优先级', mid: '中优先级', low: '低优先级' }[task.priority];
-    const priorityClass = `priority-${task.priority}`;
+
     const statusBtns = [
       { key: 'pending', label: '⬜ 未开始' },
       { key: 'doing', label: '🔄 进行中' },
@@ -1574,7 +1560,7 @@ function renderTasks() {
       ${timeTags ? `<div class="task-times">${timeTags}</div>` : ''}
       <div class="task-footer">
         <span class="task-date">${task.date}</span>
-        <span class="task-priority ${priorityClass}">${priorityLabel}</span>
+
       </div>
       <div class="status-selector">${statusBtns}</div>
     `;
@@ -1943,31 +1929,29 @@ function parseAndPreviewCSV(csvContent) {
     const cols = parseCSVLine(lines[i]);
     if (!cols || cols.length === 0 || !cols[0]) continue;
 
-    // 支持我们自己导出的格式（序号,标题,描述,优先级,状态,创建时间,开始时间,完成时间）
-    // 也支持简化格式（标题,描述,优先级,状态）
-    let title, desc, priority, status, startTime, endTime;
+    // 支持我们自己导出的格式（序号,标题,描述,状态,创建时间,开始时间,完成时间）
+    // 也支持简化格式（标题,描述,状态）
+    let title, desc, status, startTime, endTime;
 
-    if (cols.length >= 8) {
-      // 完整格式（从导出文件导入）
+    if (cols.length >= 7) {
+      // 完整格式（从导出文件导入）- 移除优先级字段
       title = cols[1] || '';
       desc = cols[2] || '';
-      priority = normalizePriority(cols[3]);
-      status = normalizeStatus(cols[4]);
-      startTime = cols[6] ? cols[6].replace(' ', 'T').substring(0,16) : '';
-      endTime = cols[7] ? cols[7].replace(' ', 'T').substring(0,16) : '';
+      status = normalizeStatus(cols[3]);
+      startTime = cols[5] ? cols[5].replace(' ', 'T').substring(0,16) : '';
+      endTime = cols[6] ? cols[6].replace(' ', 'T').substring(0,16) : '';
     } else {
       // 简化格式
       title = cols[0] || '';
       desc = cols[1] || '';
-      priority = normalizePriority(cols[2] || '');
-      status = normalizeStatus(cols[3] || '');
+      status = normalizeStatus(cols[2] || '');
       startTime = '';
       endTime = '';
     }
 
     if (!title.trim()) continue;
 
-    pendingImportTasks.push({ title: title.trim(), desc: desc.trim(), priority, status, startTime, endTime });
+    pendingImportTasks.push({ title: title.trim(), desc: desc.trim(), status, startTime, endTime });
   }
 
   if (pendingImportTasks.length === 0) {
@@ -1980,15 +1964,12 @@ function parseAndPreviewCSV(csvContent) {
   const listEl = document.getElementById('import-preview-list');
   listEl.innerHTML = '';
   pendingImportTasks.slice(0, 20).forEach((t, i) => {
-    const priorityColors = { high: 'priority-high', mid: 'priority-mid', low: 'priority-low' };
-    const priorityLabels = { high: '高优', mid: '中优', low: '低优' };
     const statusEmoji = { pending: '⬜', doing: '🔄', done: '✅' };
     const item = document.createElement('div');
     item.className = 'import-preview-item';
     item.innerHTML = `
       <span>${statusEmoji[t.status] || '⬜'}</span>
       <span class="item-title">${escHtml(t.title)}</span>
-      <span class="task-priority item-priority ${priorityColors[t.priority]}">${priorityLabels[t.priority]}</span>
     `;
     listEl.appendChild(item);
   });
@@ -2025,13 +2006,6 @@ function parseCSVLine(line) {
   return result;
 }
 
-function normalizePriority(str) {
-  const s = (str || '').toLowerCase();
-  if (s.includes('高') || s === 'high') return 'high';
-  if (s.includes('低') || s === 'low') return 'low';
-  return 'mid';
-}
-
 function normalizeStatus(str) {
   const s = (str || '').toLowerCase();
   if (s.includes('进行') || s === 'doing') return 'doing';
@@ -2063,7 +2037,6 @@ function confirmImport() {
       id: Date.now() + imported,
       title: t.title,
       desc: t.desc,
-      priority: t.priority,
       status: t.status,
       date: dateStr,
       startTime: t.startTime || '',
@@ -2087,16 +2060,14 @@ function exportToExcel() {
 
   // 构建 CSV 内容（带 BOM，Excel 能正确识别中文）
   const BOM = '\uFEFF';
-  const headers = ['序号', '任务标题', '描述', '优先级', '状态', '创建时间', '开始时间', '完成时间'];
+  const headers = ['序号', '任务标题', '描述', '状态', '创建时间', '开始时间', '完成时间'];
   
   const statusMap = { pending: '未开始', doing: '进行中', done: '已完成' };
-  const priorityMap = { high: '高优先级', mid: '中优先级', low: '低优先级' };
 
   const rows = tasks.map((t, i) => [
     i + 1,
     t.title,
     t.desc || '',
-    priorityMap[t.priority] || t.priority,
     statusMap[t.status] || t.status,
     t.date || '',
     fmtDatetime(t.startTime) || '',
