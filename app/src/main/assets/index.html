@@ -494,6 +494,191 @@
   }
   .export-btn:active { transform: scale(0.95); opacity: 0.85; }
 
+  /* 导入按钮 */
+  .import-btn {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,128,255,0.4);
+    background: rgba(0,128,255,0.1);
+    color: var(--accent-blue);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    box-shadow: 0 0 12px rgba(0,128,255,0.15);
+  }
+  .import-btn:active { transform: scale(0.95); opacity: 0.85; }
+
+  /* 版本更新弹窗 */
+  .update-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    backdrop-filter: blur(6px);
+  }
+  .update-overlay.show { opacity: 1; visibility: visible; }
+  .update-box {
+    background: var(--bg-card2);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 300px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transform: scale(0.85) translateY(20px);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 40px rgba(0,212,255,0.2);
+  }
+  .update-overlay.show .update-box { transform: scale(1) translateY(0); }
+  .update-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue), var(--accent-purple));
+  }
+  .update-icon { font-size: 44px; margin-bottom: 12px; }
+  .update-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+  }
+  .update-version {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    font-family: 'Courier New', monospace;
+  }
+  .update-notes {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 18px;
+    text-align: left;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .update-notes p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0;
+  }
+  .update-btns { display: flex; gap: 10px; }
+  .btn-update-later {
+    flex: 1; padding: 11px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-update-now {
+    flex: 2; padding: 11px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-update-later:active, .btn-update-now:active { transform: scale(0.96); }
+
+  /* 导入预览弹窗 */
+  .import-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 400;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    backdrop-filter: blur(4px);
+  }
+  .import-overlay.show { opacity: 1; visibility: visible; }
+  .import-modal {
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px 40px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .import-modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+  }
+  .import-overlay.show .import-modal { transform: translateY(0); }
+  .import-preview-list {
+    margin: 12px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.2);
+  }
+  .import-preview-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .import-preview-item:last-child { border-bottom: none; }
+  .import-preview-item .item-title { color: var(--text-primary); font-weight: 500; flex: 1; }
+  .import-preview-item .item-priority {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+  }
+  .import-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 10px 0;
+    line-height: 1.6;
+    padding: 10px;
+    background: rgba(0,128,255,0.06);
+    border: 1px solid rgba(0,128,255,0.15);
+    border-radius: 8px;
+  }
+
   /* ===== 弹窗 ===== */
   .modal-overlay {
     position: fixed;
@@ -789,7 +974,7 @@
     <div class="header-top">
       <div>
         <div class="app-title">TECH MEMO</div>
-        <div class="header-subtitle">智能备忘录系统 v3.0</div>
+        <div class="header-subtitle">智能备忘录系统 v4.0</div>
       </div>
       <div style="text-align:right">
         <div id="current-time">--:--:--</div>
@@ -858,6 +1043,7 @@
 <!-- 底部操作区 -->
 <div class="bottom-actions">
   <button class="export-btn" onclick="exportToExcel()">📊 导出 Excel</button>
+  <button class="import-btn" onclick="importFromCSV()">📥 导入任务</button>
   <button class="fab" onclick="openModal()">+</button>
 </div>
 
@@ -929,6 +1115,45 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- 版本更新弹窗 -->
+<div class="update-overlay" id="update-overlay">
+  <div class="update-box">
+    <div class="update-icon">🚀</div>
+    <div class="update-title">发现新版本</div>
+    <div class="update-version" id="update-version-text">v4.0 → vX.X</div>
+    <div class="update-notes">
+      <p id="update-notes-text">正在加载更新说明...</p>
+    </div>
+    <div class="update-btns">
+      <button class="btn-update-later" onclick="closeUpdateModal()">稍后再说</button>
+      <button class="btn-update-now" id="btn-download-update" onclick="downloadUpdate()">立即更新</button>
+    </div>
+  </div>
+</div>
+
+<!-- 导入预览弹窗 -->
+<div class="import-overlay" id="import-overlay" onclick="closeImportOutside(event)">
+  <div class="import-modal" id="import-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📥 导入任务</div>
+    <div class="import-hint">
+      支持导入 <strong style="color:var(--accent-cyan)">CSV / Excel导出的CSV</strong> 文件。<br>
+      格式：标题, 描述, 优先级(high/mid/low), 状态(pending/doing/done)<br>
+      第一行为表头，自动跳过。
+    </div>
+    <div id="import-preview-container" style="display:none">
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">
+        解析到 <span id="import-count" style="color:var(--accent-cyan);font-weight:700">0</span> 条任务：
+      </div>
+      <div class="import-preview-list" id="import-preview-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeImportModal()">取消</button>
+      <button class="btn-save" id="btn-import-confirm" onclick="confirmImport()" style="display:none">导入全部</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ===== 粒子背景 =====
@@ -1024,11 +1249,16 @@ function fmtDatetime(dtStr) {
 
 // ===== 数据层 =====
 const STORAGE_KEY = 'techmemo_tasks_v3';
+const APP_VERSION = '4.0.0';
+const GITHUB_RELEASES_API = 'https://api.github.com/repos/ruobingever/techmemo-app/releases/latest';
+
 let tasks = [];
 let currentFilter = 'all';
 let editingId = null;
 let deletingId = null;
 let sortMode = 'newest'; // newest | priority | status
+let pendingImportTasks = []; // 待导入的任务列表
+let updateDownloadUrl = '';
 
 function loadTasks() {
   try {
@@ -1340,6 +1570,257 @@ function toggleSortMenu() {
   renderTasks();
 }
 
+// ===== 版本更新检测 =====
+function checkUpdate() {
+  // 如果有Android接口则通过原生网络请求
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.checkUpdate === 'function') {
+      // 注册回调（Android会调用此函数返回结果）
+      window._updateCallback = function(latestVersion, releaseNotes, downloadUrl) {
+        handleUpdateResult(latestVersion, releaseNotes, downloadUrl);
+      };
+      window.AndroidBridge.checkUpdate(GITHUB_RELEASES_API);
+      return;
+    }
+  } catch(e) {}
+
+  // 降级：直接用 fetch（需要网络权限）
+  fetch(GITHUB_RELEASES_API)
+    .then(r => r.json())
+    .then(data => {
+      const latestVersion = (data.tag_name || '').replace(/^v/, '');
+      const releaseNotes = data.body || '暂无更新说明';
+      const downloadUrl = (data.assets && data.assets[0]) ? data.assets[0].browser_download_url : '';
+      handleUpdateResult(latestVersion, releaseNotes, downloadUrl);
+    })
+    .catch(() => {
+      // 网络不通，静默失败
+    });
+}
+
+function handleUpdateResult(latestVersion, releaseNotes, downloadUrl) {
+  if (!latestVersion) return;
+  // 版本比较（简单字符串比较，适用于 x.y.z 格式）
+  if (latestVersion === APP_VERSION) return; // 已是最新
+  const current = APP_VERSION.split('.').map(Number);
+  const latest = latestVersion.split('.').map(Number);
+  let isNewer = false;
+  for (let i = 0; i < 3; i++) {
+    const c = current[i] || 0;
+    const l = latest[i] || 0;
+    if (l > c) { isNewer = true; break; }
+    if (l < c) break;
+  }
+  if (!isNewer) return;
+
+  updateDownloadUrl = downloadUrl;
+  document.getElementById('update-version-text').textContent = `v${APP_VERSION} → v${latestVersion}`;
+  document.getElementById('update-notes-text').innerHTML = releaseNotes
+    .split('\n')
+    .filter(l => l.trim())
+    .map(l => `• ${l.trim()}`)
+    .join('<br>');
+  document.getElementById('update-overlay').classList.add('show');
+}
+
+function closeUpdateModal() {
+  document.getElementById('update-overlay').classList.remove('show');
+}
+
+function downloadUpdate() {
+  if (updateDownloadUrl) {
+    try {
+      if (window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function') {
+        window.AndroidBridge.openUrl(updateDownloadUrl);
+      } else {
+        window.open(updateDownloadUrl, '_blank');
+      }
+    } catch(e) {
+      window.open(updateDownloadUrl, '_blank');
+    }
+  }
+  closeUpdateModal();
+}
+
+// ===== CSV 导入 =====
+function importFromCSV() {
+  // 优先使用Android原生文件选择器
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.pickCSVFile === 'function') {
+      window._importCallback = function(csvContent) {
+        parseAndPreviewCSV(csvContent);
+      };
+      window.AndroidBridge.pickCSVFile();
+      return;
+    }
+  } catch(e) {}
+
+  // 降级：浏览器文件输入
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv,.txt';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      parseAndPreviewCSV(ev.target.result);
+    };
+    reader.readAsText(file, 'UTF-8');
+  };
+  input.click();
+}
+
+function parseAndPreviewCSV(csvContent) {
+  if (!csvContent) { showToast('文件内容为空'); return; }
+
+  // 去除BOM
+  const content = csvContent.replace(/^\uFEFF/, '').trim();
+  const lines = content.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { showToast('CSV格式不正确或无数据行'); return; }
+
+  pendingImportTasks = [];
+
+  // 跳过第一行表头，解析数据行
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    if (!cols || cols.length === 0 || !cols[0]) continue;
+
+    // 支持我们自己导出的格式（序号,标题,描述,优先级,状态,创建时间,开始时间,完成时间）
+    // 也支持简化格式（标题,描述,优先级,状态）
+    let title, desc, priority, status, startTime, endTime;
+
+    if (cols.length >= 8) {
+      // 完整格式（从导出文件导入）
+      title = cols[1] || '';
+      desc = cols[2] || '';
+      priority = normalizePriority(cols[3]);
+      status = normalizeStatus(cols[4]);
+      startTime = cols[6] ? cols[6].replace(' ', 'T').substring(0,16) : '';
+      endTime = cols[7] ? cols[7].replace(' ', 'T').substring(0,16) : '';
+    } else {
+      // 简化格式
+      title = cols[0] || '';
+      desc = cols[1] || '';
+      priority = normalizePriority(cols[2] || '');
+      status = normalizeStatus(cols[3] || '');
+      startTime = '';
+      endTime = '';
+    }
+
+    if (!title.trim()) continue;
+
+    pendingImportTasks.push({ title: title.trim(), desc: desc.trim(), priority, status, startTime, endTime });
+  }
+
+  if (pendingImportTasks.length === 0) {
+    showToast('未解析到有效任务');
+    return;
+  }
+
+  // 展示预览
+  document.getElementById('import-count').textContent = pendingImportTasks.length;
+  const listEl = document.getElementById('import-preview-list');
+  listEl.innerHTML = '';
+  pendingImportTasks.slice(0, 20).forEach((t, i) => {
+    const priorityColors = { high: 'priority-high', mid: 'priority-mid', low: 'priority-low' };
+    const priorityLabels = { high: '高优', mid: '中优', low: '低优' };
+    const statusEmoji = { pending: '⬜', doing: '🔄', done: '✅' };
+    const item = document.createElement('div');
+    item.className = 'import-preview-item';
+    item.innerHTML = `
+      <span>${statusEmoji[t.status] || '⬜'}</span>
+      <span class="item-title">${escHtml(t.title)}</span>
+      <span class="task-priority item-priority ${priorityColors[t.priority]}">${priorityLabels[t.priority]}</span>
+    `;
+    listEl.appendChild(item);
+  });
+  if (pendingImportTasks.length > 20) {
+    const more = document.createElement('div');
+    more.className = 'import-preview-item';
+    more.style.justifyContent = 'center';
+    more.innerHTML = `<span style="color:var(--text-secondary);font-size:11px">...还有 ${pendingImportTasks.length - 20} 条</span>`;
+    listEl.appendChild(more);
+  }
+
+  document.getElementById('import-preview-container').style.display = 'block';
+  document.getElementById('btn-import-confirm').style.display = '';
+  document.getElementById('import-overlay').classList.add('show');
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuote && line[i+1] === '"') { cur += '"'; i++; }
+      else { inQuote = !inQuote; }
+    } else if (ch === ',' && !inQuote) {
+      result.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+function normalizePriority(str) {
+  const s = (str || '').toLowerCase();
+  if (s.includes('高') || s === 'high') return 'high';
+  if (s.includes('低') || s === 'low') return 'low';
+  return 'mid';
+}
+
+function normalizeStatus(str) {
+  const s = (str || '').toLowerCase();
+  if (s.includes('进行') || s === 'doing') return 'doing';
+  if (s.includes('完成') || s === 'done') return 'done';
+  return 'pending';
+}
+
+function closeImportModal() {
+  document.getElementById('import-overlay').classList.remove('show');
+  pendingImportTasks = [];
+  document.getElementById('import-preview-container').style.display = 'none';
+  document.getElementById('btn-import-confirm').style.display = 'none';
+}
+
+function closeImportOutside(event) {
+  if (event.target === document.getElementById('import-overlay')) closeImportModal();
+}
+
+function confirmImport() {
+  if (pendingImportTasks.length === 0) return;
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  
+  let imported = 0;
+  pendingImportTasks.forEach(t => {
+    // 检查是否重复（标题完全相同则跳过）
+    if (tasks.some(existing => existing.title === t.title)) return;
+    tasks.unshift({
+      id: Date.now() + imported,
+      title: t.title,
+      desc: t.desc,
+      priority: t.priority,
+      status: t.status,
+      date: dateStr,
+      startTime: t.startTime || '',
+      endTime: t.endTime || ''
+    });
+    imported++;
+  });
+
+  saveTasks();
+  closeImportModal();
+  renderTasks();
+  showToast(`成功导入 ${imported} 条任务 📥`);
+}
+
 // ===== 导出 Excel (CSV) =====
 function exportToExcel() {
   if (tasks.length === 0) {
@@ -1424,6 +1905,8 @@ document.addEventListener('keydown', function(e) {
 // ===== 初始化 =====
 loadTasks();
 renderTasks();
+// 延迟3秒检测更新，避免影响启动体验
+setTimeout(checkUpdate, 3000);
 </script>
 </body>
 </html>
