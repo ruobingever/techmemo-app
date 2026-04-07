@@ -1043,7 +1043,7 @@
 <!-- 底部操作区 -->
 <div class="bottom-actions">
   <button class="export-btn" onclick="exportToExcel()">📊 导出 Excel</button>
-  <button class="import-btn" onclick="importFromCSV()">📥 导入任务</button>
+  <button class="import-btn" onclick="importFromCSV()">📥 导入 Excel/CSV</button>
   <button class="fab" onclick="openModal()">+</button>
 </div>
 
@@ -1138,9 +1138,9 @@
     <div class="modal-handle"></div>
     <div class="modal-title">📥 导入任务</div>
     <div class="import-hint">
-      支持导入 <strong style="color:var(--accent-cyan)">CSV / Excel导出的CSV</strong> 文件。<br>
-      格式：标题, 描述, 优先级(high/mid/low), 状态(pending/doing/done)<br>
-      第一行为表头，自动跳过。
+      支持导入 <strong style="color:var(--accent-cyan)">Excel (.xlsx) 和 CSV</strong> 文件。<br>
+      Excel/CSV 列格式：标题, 描述, 优先级(high/mid/low), 状态(pending/doing/done)<br>
+      第一行为表头，自动跳过；也可直接导入本APP导出的Excel文件。
     </div>
     <div id="import-preview-container" style="display:none">
       <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">
@@ -1655,13 +1655,17 @@ function importFromCSV() {
     }
   } catch(e) {}
 
-  // 降级：浏览器文件输入
+  // 降级：浏览器文件输入（仅支持 CSV，xlsx 需要 Android 原生）
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = '.csv,.txt';
+  input.accept = '.csv,.txt,.xlsx';
   input.onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.name.toLowerCase().endsWith('.xlsx')) {
+      showToast('xlsx格式需在APP内使用');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(ev) {
       parseAndPreviewCSV(ev.target.result);
